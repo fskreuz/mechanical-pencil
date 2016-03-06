@@ -1,0 +1,6 @@
+.DS_Store
+.gobble
+.gobble-build
+node_modules
+public
+*.log
