@@ -10,15 +10,19 @@ module.exports = function listing(inputDir, outputDir, options) {
                           .filter(pagePath => path.extname(pagePath) === '.json')
                           .map(pagePath => JSON.parse(fs.readFileSync(pagePath, 'utf8')));
 
-  const pagesPageData = pagesData.filter(pageDatum => pageDatum.type === 'page')
-                                 .sort((a, b) => b.timestamp - a.timestamp);
+  const listingsPageData = pagesData.filter(pageData => pageData.type === 'listing')
+  const pagesPageData    = pagesData.filter(pageDatum => pageDatum.type === 'page')
+                                    .sort((a, b) => b.timestamp - a.timestamp);
 
-  pagesData.filter(pageData => pageData.type === 'listing')
-           .forEach(pageData => {
-             const outputPath = path.join(outputDir, pageData.dir, `${pageData.name}.json`);
-             const listingData = Object.assign({}, { contents: pagesPageData }, pageData);
-             fsplus.writeFileSync(outputPath, JSON.stringify(listingData));
-           });
+  listingsPageData.forEach(listingPageData => {
+
+     const subPagesData = pagesPageData.filter(pagePageData => pagePageData.dir.indexOf(listingPageData.dir) === 0);
+     const outputPath   = path.join(outputDir, listingPageData.dir, `${listingPageData.name}.json`);
+     const listingData  = Object.assign({ contents: subPagesData }, listingPageData);
+
+     fsplus.writeFileSync(outputPath, JSON.stringify(listingData));
+
+   });
 
   return Promise.resolve();
 };
